@@ -27,4 +27,9 @@
     <ProjectReference Include="..\YadgarCafe.Domain\YadgarCafe.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="IntegrationTests\" />
+    <Folder Include="UnitTests\" />
+  </ItemGroup>
+
 </Project>

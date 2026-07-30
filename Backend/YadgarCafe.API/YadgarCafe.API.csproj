@@ -21,4 +21,14 @@
     <ProjectReference Include="..\YadgarCafe.Common\YadgarCafe.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+    <Folder Include="Middlewares\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Configurations\" />
+    <Folder Include="Authentication\" />
+    <Folder Include="Authorization\" />
+    <Folder Include="Filters\" />
+  </ItemGroup>
+
 </Project>
