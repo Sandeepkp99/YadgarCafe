@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace YadgarCafe.Domain.Enums
 {
-    public enum UserType
+    public enum OrderStatus
     {
-        Admin = 1,
-        Staff = 2,
-        Customer = 3
+        Pending = 1,
+        Preparing = 2,
+        Ready = 3,
+        Completed = 4,
+        Cancelled = 5
     }
 }

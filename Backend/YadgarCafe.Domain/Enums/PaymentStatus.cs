@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace YadgarCafe.Domain.Enums
 {
-    public enum UserType
+    public enum  PaymentStatus
     {
-        Admin = 1,
-        Staff = 2,
-        Customer = 3
+        Pending = 1,
+        Paid = 2,
+        Failed = 3,
+        Refunded = 4
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
+using YadgarCafe.Domain.Enums;
 
 namespace YadgarCafe.Domain.Entities
 {
@@ -6,10 +8,9 @@ namespace YadgarCafe.Domain.Entities
     {
         public string FullName { get; set; } = string.Empty;
 
-        public bool IsActive { get; set; } = true;
+        public UserType UserType { get; set; }
 
-        public DateTime CreatedOn { get; set; }
-
-        public DateTime? ModifiedOn { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; }
+            = new List<RefreshToken>();
     }
 }
