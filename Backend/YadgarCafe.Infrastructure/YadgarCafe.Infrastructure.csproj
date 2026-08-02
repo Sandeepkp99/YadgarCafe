@@ -28,7 +28,6 @@
     <Folder Include="Identity\" />
     <Folder Include="Configurations\" />
     <Folder Include="Seed\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
   <PropertyGroup>
