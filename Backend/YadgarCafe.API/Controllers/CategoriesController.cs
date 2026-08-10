@@ -51,7 +51,7 @@ namespace YadgarCafe.API.Controllers
                 if (id == Guid.Empty)
                     return BadRequest(new { message = "Invalid category ID." });
 
-                var category = await _categoryService.GetCategoryByIdAsync(id);
+                 var category = await _categoryService.GetCategoryByIdAsync(id);
                 if (category == null)
                     return NotFound(new { message = "Category not found." });
 

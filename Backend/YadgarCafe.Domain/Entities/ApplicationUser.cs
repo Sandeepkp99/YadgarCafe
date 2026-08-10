@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity;
 using YadgarCafe.Domain.Enums;
 
 namespace YadgarCafe.Domain.Entities

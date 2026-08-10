@@ -1,0 +1,29 @@
+.primary-btn{
+
+    width:100%;
+
+    padding:16px;
+
+    margin-top:10px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#59dbe0;
+
+    color:black;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.primary-btn:hover{
+
+    background:#47c4c8;
+}
