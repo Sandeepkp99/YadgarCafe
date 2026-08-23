@@ -1,35 +1,29 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import AppRoutes from "./routes/AppRoutes";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
-
-    <BrowserRouter>
-
-      <Routes>
-
-        <Route
-          path="/"
-          element={<Navigate to="/login" />}
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
         />
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/register"
-          element={<Register />}
-        />
-
-      </Routes>
-
-    </BrowserRouter>
-
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
 export default App;
+

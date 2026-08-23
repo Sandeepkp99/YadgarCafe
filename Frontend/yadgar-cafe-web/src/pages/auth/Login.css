@@ -136,3 +136,14 @@ body{
     width:100%;
     max-width:440px;
 }
+
+.error {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+form {
+    width: 100%;
+}

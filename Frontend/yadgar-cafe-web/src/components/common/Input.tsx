@@ -1,19 +1,18 @@
 import "./Input.css";
-import type { ReactNode } from "react";
+import { forwardRef, InputHTMLAttributes, ReactNode } from "react";
 
-type Props = {
+type Props = InputHTMLAttributes<HTMLInputElement> & {
     label: string;
     icon?: ReactNode;
-    type?: string;
-    placeholder?: string;
 }
 
-export default function Input({
+export default forwardRef<HTMLInputElement, Props>(function Input({
     label,
     icon,
     type = "text",
-    placeholder
-}: Props) {
+    placeholder,
+    ...props
+}: Props, ref) {
 
     return (
 
@@ -28,12 +27,14 @@ export default function Input({
             </label>
 
             <input
+                ref={ref}
                 type={type}
                 placeholder={placeholder}
+                {...props}
             />
 
         </div>
 
     );
 
-}
+})

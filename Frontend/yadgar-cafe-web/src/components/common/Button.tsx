@@ -1,12 +1,13 @@
 import "./Button.css";
+import { ButtonHTMLAttributes } from "react";
 
-type Props = {
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   title: string;
-};
+}
 
-export default function Button({ title }: Props) {
+export default function Button({ title, ...props }: Props) {
   return (
-    <button className="primary-btn">
+    <button className="primary-btn" {...props}>
       {title}
     </button>
   );
