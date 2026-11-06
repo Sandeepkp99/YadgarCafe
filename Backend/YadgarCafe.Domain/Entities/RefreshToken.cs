@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YadgarCafe.Domain.Common;
 
 namespace YadgarCafe.Domain.Entities
 {
     public class RefreshToken : BaseEntity
     {
-        public string Token { get; set; } = string.Empty;
+        /// <summary>SHA-256 hash of the token. The raw value is only ever seen by the client.</summary>
+        public string TokenHash { get; set; } = string.Empty;
 
         public DateTime Expires { get; set; }
 
@@ -18,5 +14,7 @@ namespace YadgarCafe.Domain.Entities
         public Guid UserId { get; set; }
 
         public ApplicationUser User { get; set; } = null!;
+
+        public bool IsActive => !IsRevoked && Expires > DateTime.UtcNow;
     }
 }

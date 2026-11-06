@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YadgarCafe.Domain.Common;
 
 namespace YadgarCafe.Domain.Entities
@@ -16,6 +11,9 @@ namespace YadgarCafe.Domain.Entities
         public Guid ProductId { get; set; }
 
         public Product Product { get; set; } = null!;
+
+        /// <summary>Name at order time, so history survives product edits and deletion.</summary>
+        public string ProductName { get; set; } = string.Empty;
 
         public int Quantity { get; set; }
 

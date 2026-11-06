@@ -1,4 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\YadgarCafe.Domain\YadgarCafe.Domain.csproj" />
@@ -7,29 +13,9 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.11.0" />
-    <PackageReference Include="Mapster" Version="10.0.11" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\Auth\" />
-    <Folder Include="Features\Categories\" />
-    <Folder Include="Features\Inventory\" />
-    <Folder Include="Features\Dashboard\" />
-    <Folder Include="Features\Orders\" />
-    <Folder Include="Features\Products\" />
-    <Folder Include="Features\Roles\" />
-    <Folder Include="Features\Users\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Behaviors\" />
-    <Folder Include="Mappings\" />
-    <Folder Include="Common\" />
-    <Folder Include="Validators\" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
 
 </Project>

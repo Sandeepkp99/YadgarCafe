@@ -4,13 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>yadgarcafe-api-7f3c2a1e</UserSecretsId>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
-    <PackageReference Include="Mapster.DependencyInjection" Version="10.0.11" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.18" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.28" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.18" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.18">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -23,15 +25,6 @@
     <ProjectReference Include="..\YadgarCafe.Application\YadgarCafe.Application.csproj" />
     <ProjectReference Include="..\YadgarCafe.Infrastructure\YadgarCafe.Infrastructure.csproj" />
     <ProjectReference Include="..\YadgarCafe.Common\YadgarCafe.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Middlewares\" />
-    <Folder Include="Extensions\" />
-    <Folder Include="Configurations\" />
-    <Folder Include="Authentication\" />
-    <Folder Include="Authorization\" />
-    <Folder Include="Filters\" />
   </ItemGroup>
 
 </Project>

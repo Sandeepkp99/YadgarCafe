@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YadgarCafe.Domain.Common;
 
 namespace YadgarCafe.Domain.Entities
 {
-    public class Product : AuditableEntity
+    public class Product : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
 
@@ -18,5 +13,7 @@ namespace YadgarCafe.Domain.Entities
         public Guid CategoryId { get; set; }
 
         public Category Category { get; set; } = null!;
+
+        public ICollection<ProductRecipe> Recipes { get; set; } = new List<ProductRecipe>();
     }
 }

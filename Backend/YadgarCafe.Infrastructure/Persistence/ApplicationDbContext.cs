@@ -1,168 +1,112 @@
-﻿using Microsoft.AspNetCore.Identity;
+using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using YadgarCafe.Application.Interfaces;
+using YadgarCafe.Common.Exceptions;
+using YadgarCafe.Domain.Common;
 using YadgarCafe.Domain.Entities;
 
 namespace YadgarCafe.Infrastructure.Persistence
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        private readonly ICurrentUser? _currentUser;
+
+        // currentUser is optional so the design-time factory (migrations) can build the context.
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ICurrentUser? currentUser = null)
             : base(options)
         {
+            _currentUser = currentUser;
         }
-
-        #region DbSets
 
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Ingredient> Ingredients => Set<Ingredient>();
         public DbSet<ProductRecipe> ProductRecipes => Set<ProductRecipe>();
         public DbSet<Inventory> Inventories => Set<Inventory>();
-
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Staff> Staffs => Set<Staff>();
-
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
-
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
-        #endregion
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Orders keep their customer even if it is later soft deleted; the filter interaction is intended.
+            optionsBuilder.ConfigureWarnings(w =>
+                w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning));
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            ConfigureCategory(builder);
-            ConfigureProduct(builder);
-            ConfigureIngredient(builder);
-            ConfigureInventory(builder);
-            ConfigureStaff(builder);
-            ConfigureProductRecipe(builder);
-            ConfigureOrder(builder);
-            ConfigureOrderItem(builder);
+            builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+            // Soft delete: every BaseEntity is hidden once IsDeleted is set, so repositories never repeat the check.
+            foreach (var entityType in builder.Model.GetEntityTypes()
+                         .Where(t => typeof(BaseEntity).IsAssignableFrom(t.ClrType) && t.ClrType != typeof(ProductRecipe)))
+            {
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var notDeleted = Expression.Equal(
+                    Expression.Property(parameter, nameof(BaseEntity.IsDeleted)),
+                    Expression.Constant(false));
+
+                builder.Entity(entityType.ClrType).HasQueryFilter(Expression.Lambda(notDeleted, parameter));
+            }
         }
 
-        #region Entity Configurations
-
-        private static void ConfigureCategory(ModelBuilder builder)
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            builder.Entity<Category>(entity =>
+            ApplyAuditAndSoftDelete();
+
+            try
             {
-                entity.Property(x => x.Name)
-                      .IsRequired()
-                      .HasMaxLength(100);
-            });
+                return await base.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new ConflictException("The data was changed by another request. Please retry.");
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
+            {
+                throw new ConflictException("A record with the same unique value already exists.");
+            }
         }
 
-        private static void ConfigureProduct(ModelBuilder builder)
+        private void ApplyAuditAndSoftDelete()
         {
-            builder.Entity<Product>(entity =>
+            var now = DateTime.UtcNow;
+            var actor = _currentUser?.UserId?.ToString() ?? "System";
+
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>().ToList())
             {
-                entity.Property(x => x.Price)
-                      .HasPrecision(18, 2);
-            });
-        }
-
-        private static void ConfigureIngredient(ModelBuilder builder)
-        {
-            builder.Entity<Ingredient>(entity =>
-            {
-                entity.Property(x => x.Name)
-                      .IsRequired()
-                      .HasMaxLength(100);
-
-                entity.Property(x => x.CurrentStock)
-                      .HasPrecision(18, 2);
-
-                entity.Property(x => x.MinimumStock)
-                      .HasPrecision(18, 2);
-            });
-        }
-
-        private static void ConfigureInventory(ModelBuilder builder)
-        {
-            builder.Entity<Inventory>(entity =>
-            {
-                entity.Property(x => x.Quantity)
-                      .HasPrecision(18, 2);
-
-                entity.HasOne(x => x.Ingredient)
-                      .WithMany()
-                      .HasForeignKey(x => x.IngredientId)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-        }
-
-        private static void ConfigureStaff(ModelBuilder builder)
-        {
-            builder.Entity<Staff>(entity =>
-            {
-                entity.Property(x => x.Name)
-                      .IsRequired()
-                      .HasMaxLength(100);
-            });
-        }
-
-        private static void ConfigureProductRecipe(ModelBuilder builder)
-        {
-            builder.Entity<ProductRecipe>(entity =>
-            {
-                entity.HasKey(x => new
+                switch (entry.State)
                 {
-                    x.ProductId,
-                    x.IngredientId
-                });
+                    case EntityState.Added:
+                        entry.Entity.CreatedOn = now;
+                        entry.Entity.CreatedBy = actor;
+                        break;
 
-                entity.Property(x => x.Quantity)
-                      .HasPrecision(18, 2);
-            });
+                    case EntityState.Modified:
+                        entry.Property(e => e.CreatedOn).IsModified = false;
+                        entry.Property(e => e.CreatedBy).IsModified = false;
+                        entry.Entity.ModifiedOn = now;
+                        entry.Entity.ModifiedBy = actor;
+                        break;
+
+                    case EntityState.Deleted when entry.Entity is not IHardDelete:
+                        entry.State = EntityState.Modified;
+                        entry.Entity.IsDeleted = true;
+                        entry.Entity.ModifiedOn = now;
+                        entry.Entity.ModifiedBy = actor;
+                        break;
+                }
+            }
         }
-
-        private static void ConfigureOrder(ModelBuilder builder)
-        {
-            builder.Entity<Order>(entity =>
-            {
-                entity.Property(x => x.TotalAmount)
-                      .HasPrecision(18, 2);
-
-                entity.HasOne(x => x.Customer)
-                      .WithMany(c => c.Orders)
-                      .HasForeignKey(x => x.CustomerId)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-        }
-
-        private static void ConfigureOrderItem(ModelBuilder builder)
-        {
-            builder.Entity<OrderItem>(entity =>
-            {
-                entity.Property(x => x.UnitPrice)
-                      .HasPrecision(18, 2);
-
-                entity.Property(x => x.TotalPrice)
-                      .HasPrecision(18, 2);
-
-                entity.HasOne(x => x.Order)
-                      .WithMany(o => o.OrderItems)
-                      .HasForeignKey(x => x.OrderId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(x => x.Product)
-                      .WithMany()
-                      .HasForeignKey(x => x.ProductId)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });
-        }
-
-        #endregion
     }
 }
-

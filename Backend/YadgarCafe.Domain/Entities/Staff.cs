@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YadgarCafe.Domain.Common;
 
 namespace YadgarCafe.Domain.Entities
 {
-    public class Staff : AuditableEntity
+    public class Staff : BaseEntity
     {
         public string Name { get; set; } = string.Empty;
 

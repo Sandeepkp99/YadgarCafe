@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YadgarCafe.Domain.Common;
 
 namespace YadgarCafe.Domain.Entities
 {
-    public class ProductRecipe : BaseEntity
+    /// <summary>Quantity of one ingredient consumed to make one unit of a product.</summary>
+    public class ProductRecipe : BaseEntity, IHardDelete
     {
         public Guid ProductId { get; set; }
 
